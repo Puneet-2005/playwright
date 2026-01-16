@@ -20,7 +20,7 @@ import path from 'path';
 import { browserTest as test } from '../config/browserTest';
 import type { BrowserContext, Page, PageAgent } from '@playwright/test';
 
-function cacheFile() {
+export function cacheFile() {
   return test.info().outputPath('agent-cache.json');
 }
 
@@ -28,7 +28,13 @@ export async function cacheObject() {
   return JSON.parse(await fs.promises.readFile(cacheFile(), 'utf8'));
 }
 
-export async function generateAgent(context: BrowserContext, options: { secrets?: Record<string, string> } = {}) {
+export async function setCacheObject(object: any) {
+  await fs.promises.writeFile(cacheFile(), JSON.stringify(object, null, 2), 'utf8');
+}
+
+type AgentOptions = Parameters<Page['agent']>[0];
+
+export async function generateAgent(context: BrowserContext, options: AgentOptions = {}) {
   const apiCacheFile = path.join(__dirname, '__llm_cache__', sanitizeFileName(test.info().titlePath.join(' ')) + '.json');
 
   const page = await context.newPage();
